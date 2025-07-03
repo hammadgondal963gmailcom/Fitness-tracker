@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🏆 30-Day Fitness Hero Tracker</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #fdfcfb, #e2d1c3);
+      margin: 0;
+      padding: 2rem;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      color: #222;
+      margin-bottom: 1rem;
+    }
+    .tracker {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      border: 2px solid #ddd;
+    }
+    select, label, input, textarea, button {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+    }
+    input, textarea, select {
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #222;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .quote, .summary, .level, .emoji, .hero-badge, .plan {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .emoji {
+      font-size: 2.2rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔥 30-Day Fitness Hero Tracker</h1>
+  <div class="tracker">
+    <label for="daySelect">📆 Select Day (1-30)</label>
+    <select id="daySelect" onchange="showDayPlan()">
+      <script>
+        document.write([...Array(30)].map((_, i) => `<option value="${i + 1}">Day ${i + 1}</option>`).join(''));
+      </script>
+    </select>
+    <div class="plan" id="planBox"></div>
+
+    <label>🔥 Calories Eaten</label>
+    <input type="number" id="calories" placeholder="e.g. 1800" />
+    <label>📏 Waist (inches)</label>
+    <input type="number" id="waist" placeholder="e.g. 33.5" />
+    <label>⚖️ Weight (kg)</label>
+    <input type="number" id="weight" placeholder="e.g. 72" />
+    <label>😊 Mood (1-10)</label>
+    <input type="number" id="mood" min="1" max="10" placeholder="10 = feeling amazing!" />
+    <label>⚡ Energy (1-10)</label>
+    <input type="number" id="energy" min="1" max="10" placeholder="10 = full of energy" />
+    <label>📝 Notes</label>
+    <textarea id="notes" placeholder="Write anything about your day here..."></textarea>
+    <button onclick="saveData()">Save My Hero Day ✅</button>
+
+    <div class="quote" id="quoteBox"></div>
+    <div class="emoji" id="emojiBox"></div>
+    <div class="level" id="levelBox"></div>
+    <div class="hero-badge" id="badgeBox"></div>
+    <div class="summary" id="summaryBox"></div>
+  </div>
+
+  <script>
+    const quotes = [
+      "Train like a hero, not like a quitter 💪",
+      "Progress is the reward 🏅",
+      "No one else is coming. Be your own hero 🦸",
+      "Today’s effort = Tomorrow’s flex 💥",
+      "The only bad workout is the one you didn’t do 👊"
+    ];
+    const emojis = ["😴", "😕", "😐", "🙂", "😎", "🔥", "👑", "💯", "🚀", "🦾"];
+    const plans = {
+      1: ["3x12 squats", "3x15 glute bridges", "3x10 push-ups", "1min plank"],
+      2: ["3x20 crunches", "3x15 bicycle kicks", "3x30sec side plank", "3x20 leg raises"],
+      3: ["3x15 lunges", "3x20 jump squats", "3x12 glute kickbacks", "Stretch 5min"],
+      4: ["Rest Day 😌", "Go for a walk or do light yoga"],
+      5: ["4x10 push-ups", "3x30sec plank", "3x10 dips", "3x10 jump squats"]
+    };
+    const meals = [
+      "🍳 Oats + 2 boiled eggs / dal",
+      "🥗 Roti + dal/chana + 1 veggie",
+      "🍌 Fruit or handful of peanuts",
+      "🥘 Roti + veggie + boiled egg/lentils",
+      "💧 3L water, no sugar after 8pm"
+    ];
+
+    function showDayPlan() {
+      const day = document.getElementById("daySelect").value;
+      const workouts = plans[day] || ["Repeat your best day!", "Or go on a long walk."];
+      const planBox = document.getElementById("planBox");
+      planBox.innerHTML = `<strong>Workout:</strong><br>• ${workouts.join("<br>• ")}<br><br><strong>Meals:</strong><br>• ${meals.join("<br>• ")}`;
+    }
+
+    function saveData() {
+      const cals = document.getElementById('calories').value;
+      const waist = document.getElementById('waist').value;
+      const weight = document.getElementById('weight').value;
+      const mood = parseInt(document.getElementById('mood').value);
+      const energy = document.getElementById('energy').value;
+      const notes = document.getElementById('notes').value;
+
+      const entry = {
+        date: new Date().toLocaleDateString(),
+        cals, waist, weight, mood, energy, notes
+      };
+
+      let logs = JSON.parse(localStorage.getItem("fitnessLogs")) || [];
+      logs.push(entry);
+      localStorage.setItem("fitnessLogs", JSON.stringify(logs));
+
+      document.getElementById("quoteBox").innerText = quotes[Math.floor(Math.random() * quotes.length)];
+      document.getElementById("emojiBox").innerText = emojis[mood - 1] || "💪";
+
+      showSummary();
+    }
+
+    function showSummary() {
+      const logs = JSON.parse(localStorage.getItem("fitnessLogs")) || [];
+      const recent = logs.slice(-7).map(log => `📅 ${log.date}: ${log.waist}" waist, ${log.weight}kg, mood ${log.mood}`).join('\n');
+      document.getElementById("summaryBox").innerText = "📊 Last 7 Days:\n" + recent;
+
+      const level = logs.length;
+      document.getElementById("levelBox").innerText = `🔥 Progress Level: ${level}/30`;
+
+      let badge = "";
+      if (level >= 7) badge = "🟢 Bronze Hero";
+      if (level >= 15) badge = "🔵 Silver Hero";
+      if (level >= 25) badge = "🟣 Gold Hero";
+      if (level >= 30) badge = "🏅 Ultimate Beast Mode";
+
+      document.getElementById("badgeBox").innerText = badge;
+    }
+
+    showDayPlan();
+    showSummary();
+  </script>
+</body>
+</html>
